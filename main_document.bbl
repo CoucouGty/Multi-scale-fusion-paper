@@ -1,0 +1,148 @@
+\begin{thebibliography}{16}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\href}[2]{#2}
+\providecommand{\path}[1]{#1}
+\providecommand{\DOIprefix}{doi:}
+\providecommand{\ArXivprefix}{arXiv:}
+\providecommand{\URLprefix}{URL: }
+\providecommand{\Pubmedprefix}{pmid:}
+\providecommand{\doi}[1]{\href{http://dx.doi.org/#1}{\path{#1}}}
+\providecommand{\Pubmed}[1]{\href{pmid:#1}{\path{#1}}}
+\providecommand{\bibinfo}[2]{#2}
+\ifx\xfnm\relax \def\xfnm[#1]{\unskip,\space#1}\fi
+%Type = Inproceedings
+\bibitem[{Almahairi et~al.(2018)Almahairi, Rajeshwar, Sordoni
+  et~al.}]{almahairi2018augmented}
+\bibinfo{author}{Almahairi, A.}, \bibinfo{author}{Rajeshwar, S.},
+  \bibinfo{author}{Sordoni, A.}, et~al., \bibinfo{year}{2018}.
+\newblock \bibinfo{title}{Augmented cyclegan: Learning many-to-many mappings
+  from unpaired data}, in: \bibinfo{booktitle}{ICML}, pp.
+  \bibinfo{pages}{195--204}.
+%Type = Article
+\bibitem[{Bermano et~al.(2022)Bermano, Gal, Alaluf
+  et~al.}]{bermano2022stylegan}
+\bibinfo{author}{Bermano, A.H.}, \bibinfo{author}{Gal, R.},
+  \bibinfo{author}{Alaluf, Y.}, et~al., \bibinfo{year}{2022}.
+\newblock \bibinfo{title}{State‐of‐the‐art in the architecture, methods
+  and applications of stylegan}.
+\newblock \bibinfo{journal}{Computer Graphics Forum} \bibinfo{volume}{41},
+  \bibinfo{pages}{591--611}.
+%Type = Article
+\bibitem[{Bizhani et~al.(2022)Bizhani, Ardakani and
+  Little}]{bizhani2022reconstructing}
+\bibinfo{author}{Bizhani, M.}, \bibinfo{author}{Ardakani, O.H.},
+  \bibinfo{author}{Little, E.}, \bibinfo{year}{2022}.
+\newblock \bibinfo{title}{Reconstructing high fidelity digital rock images
+  using deep convolutional neural networks}.
+\newblock \bibinfo{journal}{Scientific Reports} \bibinfo{volume}{12},
+  \bibinfo{pages}{4264}.
+%Type = Article
+\bibitem[{Cao et~al.(2022)Cao, Hou, Liu et~al.}]{cao2022reconstruction}
+\bibinfo{author}{Cao, D.}, \bibinfo{author}{Hou, Z.}, \bibinfo{author}{Liu,
+  Q.}, et~al., \bibinfo{year}{2022}.
+\newblock \bibinfo{title}{Reconstruction of three-dimension digital rock guided
+  by prior information with a combination of infogan and style-based gan}.
+\newblock \bibinfo{journal}{Journal of Petroleum Science and Engineering}
+  \bibinfo{volume}{208}, \bibinfo{pages}{109590}.
+%Type = Article
+\bibitem[{Chen et~al.(2023)Chen, Zhang, Yang et~al.}]{chen2023multiscale}
+\bibinfo{author}{Chen, G.}, \bibinfo{author}{Zhang, G.}, \bibinfo{author}{Yang,
+  Z.}, et~al., \bibinfo{year}{2023}.
+\newblock \bibinfo{title}{Multi-scale patch-gan with edge detection for image
+  inpainting}.
+\newblock \bibinfo{journal}{Applied Intelligence} \bibinfo{volume}{53},
+  \bibinfo{pages}{3917--3932}.
+%Type = Article
+\bibitem[{Chen et~al.(2024)Chen, Lin, Zhang et~al.}]{chen2024icycle}
+\bibinfo{author}{Chen, Y.}, \bibinfo{author}{Lin, H.}, \bibinfo{author}{Zhang,
+  W.}, et~al., \bibinfo{year}{2024}.
+\newblock \bibinfo{title}{Icycle-gan: Improved cycle generative adversarial
+  networks for liver medical image generation}.
+\newblock \bibinfo{journal}{Biomedical Signal Processing and Control}
+  \bibinfo{volume}{92}, \bibinfo{pages}{106100}.
+%Type = Article
+\bibitem[{Chi et~al.(2024)Chi, Sun, Zhang et~al.}]{chi2024fusion}
+\bibinfo{author}{Chi, P.}, \bibinfo{author}{Sun, J.}, \bibinfo{author}{Zhang,
+  R.}, et~al., \bibinfo{year}{2024}.
+\newblock \bibinfo{title}{Digital rock reconstruction enhanced by a novel
+  gan-based 2d-3d image fusion framework}.
+\newblock \bibinfo{journal}{Advances in Water Resources} \bibinfo{volume}{193},
+  \bibinfo{pages}{104813}.
+%Type = Article
+\bibitem[{Jia et~al.(2022)Jia, Cai, Huang et~al.}]{jia2022learning}
+\bibinfo{author}{Jia, H.}, \bibinfo{author}{Cai, W.}, \bibinfo{author}{Huang,
+  H.}, et~al., \bibinfo{year}{2022}.
+\newblock \bibinfo{title}{Learning multi-scale synergic discriminative features
+  for prostate image segmentation}.
+\newblock \bibinfo{journal}{Pattern Recognition} \bibinfo{volume}{126},
+  \bibinfo{pages}{108556}.
+%Type = Inproceedings
+\bibitem[{Karras et~al.(2020)Karras, Laine, Aittala
+  et~al.}]{karras2020analyzing}
+\bibinfo{author}{Karras, T.}, \bibinfo{author}{Laine, S.},
+  \bibinfo{author}{Aittala, M.}, et~al., \bibinfo{year}{2020}.
+\newblock \bibinfo{title}{Analyzing and improving the image quality of
+  stylegan}, in: \bibinfo{booktitle}{CVPR}, pp. \bibinfo{pages}{8110--8119}.
+%Type = Article
+\bibitem[{Li et~al.(2023)Li, Li, Liu et~al.}]{li2023advances}
+\bibinfo{author}{Li, X.}, \bibinfo{author}{Li, B.}, \bibinfo{author}{Liu, F.},
+  et~al., \bibinfo{year}{2023}.
+\newblock \bibinfo{title}{Advances in the application of deep learning methods
+  to digital rock technology}.
+\newblock \bibinfo{journal}{Advances in Geo-Energy Research}
+  \bibinfo{volume}{8}, \bibinfo{pages}{5--18}.
+%Type = Article
+\bibitem[{Qin et~al.(2022)Qin, Xia, Wu et~al.}]{qin2022influence}
+\bibinfo{author}{Qin, X.}, \bibinfo{author}{Xia, Y.}, \bibinfo{author}{Wu, J.},
+  et~al., \bibinfo{year}{2022}.
+\newblock \bibinfo{title}{Influence of pore morphology on permeability through
+  digital rock modeling: new insights from the euler number and shape factor}.
+\newblock \bibinfo{journal}{Energy \& Fuels} \bibinfo{volume}{36},
+  \bibinfo{pages}{7519--7530}.
+%Type = Article
+\bibitem[{Reinhardt et~al.(2022)Reinhardt, Jacob, Sadeghnejad
+  et~al.}]{reinhardt2022benchmarking}
+\bibinfo{author}{Reinhardt, M.}, \bibinfo{author}{Jacob, A.},
+  \bibinfo{author}{Sadeghnejad, S.}, et~al., \bibinfo{year}{2022}.
+\newblock \bibinfo{title}{Benchmarking conventional and machine learning
+  segmentation techniques for digital rock physics analysis of fractured
+  rocks}.
+\newblock \bibinfo{journal}{Environmental Earth Sciences} \bibinfo{volume}{81},
+  \bibinfo{pages}{71}.
+%Type = Article
+\bibitem[{Yang et~al.(2023)Yang, Liu, Zhang et~al.}]{yang2023recent}
+\bibinfo{author}{Yang, Y.}, \bibinfo{author}{Liu, F.}, \bibinfo{author}{Zhang,
+  Q.}, et~al., \bibinfo{year}{2023}.
+\newblock \bibinfo{title}{Recent advances in multiscale digital rock
+  reconstruction, flow simulation, and experiments during shale gas
+  production}.
+\newblock \bibinfo{journal}{Energy \& Fuels} \bibinfo{volume}{37},
+  \bibinfo{pages}{2475--2497}.
+%Type = Article
+\bibitem[{Zhang et~al.(2022)Zhang, Ji and Lu}]{zhang2022reconstruction}
+\bibinfo{author}{Zhang, T.}, \bibinfo{author}{Ji, X.}, \bibinfo{author}{Lu,
+  F.}, \bibinfo{year}{2022}.
+\newblock \bibinfo{title}{3d reconstruction of porous media by combining
+  scaling transformation and multi-scale discrimination using generative
+  adversarial networks}.
+\newblock \bibinfo{journal}{Journal of Petroleum Science and Engineering}
+  \bibinfo{volume}{209}, \bibinfo{pages}{109815}.
+%Type = Article
+\bibitem[{Zhao et~al.(2021)Zhao, Wang and Cai}]{zhao2021tight}
+\bibinfo{author}{Zhao, J.}, \bibinfo{author}{Wang, F.}, \bibinfo{author}{Cai,
+  J.}, \bibinfo{year}{2021}.
+\newblock \bibinfo{title}{3d tight sandstone digital rock reconstruction with
+  deep learning}.
+\newblock \bibinfo{journal}{Journal of Petroleum Science and Engineering}
+  \bibinfo{volume}{207}, \bibinfo{pages}{109020}.
+%Type = Article
+\bibitem[{Zhong et~al.(2023)Zhong, Ding, Chen et~al.}]{zhong2023multi}
+\bibinfo{author}{Zhong, G.}, \bibinfo{author}{Ding, W.}, \bibinfo{author}{Chen,
+  L.}, et~al., \bibinfo{year}{2023}.
+\newblock \bibinfo{title}{Multi-scale attention generative adversarial network
+  for medical image enhancement}.
+\newblock \bibinfo{journal}{IEEE Transactions on Emerging Topics in
+  Computational Intelligence} \bibinfo{volume}{7}, \bibinfo{pages}{1113--1125}.
+
+\end{thebibliography}

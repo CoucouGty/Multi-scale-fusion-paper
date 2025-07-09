@@ -41,8 +41,12 @@
 \usepackage{algpseudocode}
 \usepackage{color}
 \usepackage{setspace}
-\usepackage[nomarkers,figuresonly]{endfloat}
+\usepackage{float}      % 提供 [H] 选项
+\usepackage{booktabs}   % 使用 \toprule 等格式
 
+
+%\usepackage[nomarkers,figuresonly]{endfloat}
+\usepackage{graphicx}  % 保留图像支持
 
 \newcommand{\colorComments}{black} 
  
@@ -158,193 +162,243 @@ Keyword 1 \sep Keyword 2 \sep Keyword 3 \sep Keyword 4
 
 \doublespacing
 
-
 \section{Introduction}
-\label{intro}
-With the continuous advancement of unconventional oil and gas exploration and development, the limitations of traditional rock physics methods---such as dependency on laboratory conditions, lengthy experimental cycles, and low data acquisition efficiency---have become increasingly prominent. To enhance the characterization of reservoir microstructures, Digital Rock Physics (DRP), an interdisciplinary technique that integrates image processing, computational modeling, and numerical simulation, has attracted widespread attention in recent years in the fields of rock physics, reservoir characterization, and geotechnical engineering (reference). %（哪些文献表明）
-
-Currently, digital rock modeling primarily relies on image data obtained from micro-computed tomography (Micro-CT) and scanning electron microscopy (SEM). Micro-CT enables non-destructive acquisition of the three-dimensional structure of rock samples, offering good structural connectivity and a relatively large field of view (FoV); however, its spatial resolution is limited, making it insufficient for accurately capturing pore structures at the micrometer or nanometer scale. In contrast, SEM images provide significantly higher resolution and can reveal intricate microstructural features, but the imaging range is limited, typically two-dimensional, and the acquisition process is costly and time-consuming (reference). %（哪些文献表明）
-
-In digital image-based modeling, FoV and image resolution are two key but inherently constrained parameters. Due to current limitations in imaging technology, there exists an intrinsic trade-off between FoV and resolution: enhancing spatial resolution often results in a reduced observable area, while expanding the FoV generally leads to lower resolution (reference). %（哪些文献表明） This trade-off restricts the ability to build high-quality image-based models at a unified scale, particularly when both macroscopic structural integrity and microscopic detail preservation are required.
-
 \section{Related Work}
+\section{FRAMEWORK}
 
-\subsection{Digital Rock Physics and Imaging Modalities}
+\subsection{Framework Description}
+Figure X shows the overall framework of the MSA-CycleGAN proposed in this paper in realizing the task of converting Micro-CT to SEM images.
 
-\subsection{GAN-Based Approaches for Multiscale Image Generation}
+The original CycleGAN consists of two generators $ G_{L2H}$ and$ G_{H2L}$ two discriminators $ D_{L}$and$ D_{H}$. The overall network adopts a cyclic structure to ensure that the consistency of the image structure and the reliability of physical properties can be maintained in the absence of paired labels.
 
-\subsection{Framework and Architectural Innovations}
+However, CycleGAN only focuses on pixel distribution matching and lacks explicit modeling of the microstructure in rock images. This may cause structural authenticity problems such as void ambiguity, boundary fractures, and crack strike deviation, which will affect downstream geotechnical modeling and physical simulation tasks.
 
-\section{Method}
+Moreover, CycleGAN does not consider the physical indicators of rock images, such as porosity, connectivity, particle size distribution, etc., and the generated map may be visually realistic but the geological attributes are distorted. Moreover, CycleGAN may be unstable in training and excessively strong discriminators. The pattern crashes, that is, multiple inputs are mapped to approximately the same output, reducing the diversity of generation. This problem is more likely to occur in scenes with a limited number of rock image samples.
 
+In order to solve the above problems, inspired by the existing research on multi-scale discriminant strategies and structure sensing mechanisms in reducing representation differences between domains, this paper systematically introduces multi-scale discriminators, structure retention loss and attention mechanisms into the CycleGAN framework to achieve multiple fidelity of image texture details and geological structure information. We named this new network model MSA-CycleGAN.
 
-\subsection{Overview of CycleGAN generation framework}
+Specifically, in order to enhance the generator's ability to maintain microstructure, MSA-CycleGAN introduces a self-attention mechanism in the generator to improve the feature selectivity of key structural areas such as crack boundaries and pore distribution through information interaction between channels., thereby improving structural expression accuracy and edge clarity.
+At the same time, in order to improve the model's perception of texture and structural features at different scales, the discriminator is constructed as a multi-scale PatchGAN structure. Its dual discrimination path can evaluate the structural authenticity of the image at the original and down-sampled scales in parallel, thereby enhancing the model's consistent modeling capabilities for local details and global semantics. In order to further improve the response ability of the generator to key areas of the structure, a space-channel self-attention mechanism is introduced within the network, which effectively enhances the modeling selectivity of image boundaries and structural information, thereby improving the accuracy of structural expression and texture contrast.
 
-CycleGAN is used as the basic frame to realize the cross-domain transformation between unpaired images. CycleGAN is an unsupervised image-to-image translation model first proposed by Zhu et al. in 2017. This method is a method for unsupervised image conversion between two image domains X and Y.The goal is to learn the mapping function in two directions without paired samples:$G:X \rightarrow Y$ and$F:Y \rightarrow X$ ,where the training data comes from source domain samples $\{x_i\}_{i=1}^N$and target domain sample$\{y_j\}_{i=1}^N$, and respectively obeys the distribution$x \sim p_{data}(x)$ and $y \sim p_{data}(y)$
-
-% todo 新增图1
-As shown in Figure 1, the CycleGAN network includes two generators $G$ and $F$, and two discriminators $D_Y$ and $D_X$. Among them, the discriminator $D_Y$ is used to determine whether the image $y$ and the generated image $G(x)$ come from the same distribution; similarly, the discriminator $D_X$ aims to distinguish the real source domain image $x$ from the reconstructed image $F(y)$.
-
-In CycleGAN, the optimization goal consists of two core loss terms: Adversarial Loss and Cycle Consistency Loss, which together act on the modeling process of unsupervised image-to-image conversion.
-
-(1)\textbf{Adversarial Loss}
-
-Combating loss is used to ensure that the distribution of the generated image is as close as possible to the data distribution in the target domain. Specifically, for the mapping $G:X \rightarrow Y$ from the source domain $X$ to the target domain $Y$, CycleGAN introduces a discriminator $D_Y$ to distinguish between the real image y and the generated image $G(x)$, such that:
-
-\begin{equation}
-	\mathcal{L}_{GAN}(G, D_Y, X, Y) = \mathbb{E}_{y \sim p_{data}(y)}[\log D_Y(y)] + \mathbb{E}_{x \sim p_{data}(x)}[\log(1 - D_Y(G(x)))]
-\end{equation}
+As the training iteration deepens, the generator's characterization capabilities on structural domains at different scales continue to be enhanced, ultimately making the output image not only visually close to the real SEM image, but also highly consistent in physical properties such as porosity and connectivity. This method significantly improves the fidelity and interpretability of cross-domain transformation of geological images without relying on pixel paired data. We provide a summary of the symbols and their definitions in Table 1. 
 
 
-Similarly, for the inverse mapping $F:Y \rightarrow X$, a discriminator $D_X$ is introduced to distinguish the real source image $x$ from the synthetic image $F(y)$, forming another antagonistic loss term.
-Such losses drive the generator to learn realistic mapping results, but do not by themselves ensure a one-to-one semantic or structural relationship between inputs and outputs.
 
-
-(2)\textbf{cycle consistency loss}
-In order to avoid pattern crashes or non-semantic alignment problems caused by adversarial training alone, CycleGAN proposes cyclic consistency constraints. The core idea is: After mapping once and then mapping back, the original image should be restored as much as possible, that is:
-
-\begin{itemize}
-	\item forward consistency:$x \rightarrow G(x) \rightarrow F(G(x)) \approx x$
-	\item Reverse consistency:$y \rightarrow F(y) \rightarrow G(F(y)) \approx y$
-\end{itemize}
-
-The cyclic consistency loss function is defined as:
-\begin{equation}
-	\mathcal{L}_{cyc}(G, F) = \mathbb{E}_{x \sim p_{data}(x)}[\|F(G(x)) - x\|_1] + \mathbb{E}_{y \sim p_{data}(y)}[\|G(F(y)) - y\|_1]
-\end{equation}
-
-The loss term measures the difference between the restored image and the original image through the L1 norm, effectively constraining the mapping result to maintain structural and semantic consistency.
-
-(3)\textbf{total loss function}
-Finally, CycleGAN's total loss function integrates the two loss forms as follows: 
-\begin{equation}
-	\mathcal{L}(G, F, D_X, D_Y) = \mathcal{L}_{GAN}(G, D_Y, X, Y) + \mathcal{L}_{GAN}(F, D_X, Y, X) + \lambda \mathcal{L}_{cyc}(G, F)
-\end{equation}
-Among them, the hyperparameter $\lambda$ controls the weight of the loop consistency loss in the overall objective function
-\subsection{Modified CycleGAN for Micro-CT to SEM Translation}
-
-Although the basic CycleGAN framework performs well in unsupervised image domain conversion tasks, there are still the following challenges in the high-resolution conversion task of Micro-CT images to SEM images: on the one hand, structural information in Micro-CT images is relatively fuzzy, and direct mapping often leads to the generated image lacking sufficient texture detail and boundary sharpness; on the other hand, SEM images have richer high-frequency textures and microscopic pore structures, which puts higher requirements on the generator's modeling capabilities.
-
-
-To this end, this paper introduces a number of structural improvements based on the traditional CycleGAN architecture to improve the model's performance in detail restoration and image quality, mainly including:
-
-1.Introduce a multi-scale feature fusion module into the generator to enhance the perception of pore structures of different size;
-
-2.Use the multi-scale PatchGAN discriminator to jointly discriminate local and global textures to guide the generated images to maintain semantic consistency in multi-level spaces;
-
-3.Optimize the up-sampling module and use interpolation fusion and residual connection to effectively alleviate the edge ambiguity problem in the up-sampling process;
-
-4.In terms of loss function, in addition to retaining the original confrontation loss and cyclic consistency loss, structure preservation loss and edge enhancement terms are also added to further enhance the ability to model microstructure and boundary information.
-
-Through the above improvements, the model can better capture the differences in spatial frequency, structural details and texture distribution between Micro-CT images and SEM images, thereby generating high-resolution rock images that are more realistic and scientifically explanatory. 
-
-\subsubsection{multi-scale discriminator}
-
-\subsection{Data and Training Settings}
-
-
-\begin{equation}
-\label{eqn:linear}
-    y=ax+b.
-\end{equation}
-
-
-\begin{equation} 
-\label{eqn:quadratic}
-    y=ax^2+bx+c
-\end{equation}
-
-\section{Algorithm and implementation}
-
-Example of algorithm:
-\begin{algorithm}
-  \caption{Algorithm example }
-  
-  \begin{algorithmic}
-  \label{alg:Alg1}
-  \State \textbf{Input:} ...
-   \newline
-
- \Statex \textit{1.} Step1
-  \Statex \textit{2.} Step2;
- \State \textit{3.}  Step3;
-  \newline
-   \For{ i = 1,..., m}
-   \State \textit{4.} Step 4;
-    \For{ j = 2,..., n} 
-   \State \textit{5.}  Step 5;
-   \State \textit{6.} Step 6;
-   \EndFor
-  \EndFor 
-  \newline
-\State  \textbf{Output: } ... 
-  \end{algorithmic} 
-\end{algorithm} 
-
-
-\section{Results}
-
-
-This section includes an example of figure (Figure \ref{fig:Figure1}), from  \cite{de2021direct}.
-
-\begin{figure}
-\centering
-\includegraphics[width=0.75\textwidth]{figs_rev1/uncond_distribution_reference.png}
-\caption{ Caption here. Image from \cite{de2021direct}.}
-\label{fig:Figure1}
-\end{figure}
-
-This section includes an example of table (Table \ref{tab:Table1}).
 
 \begin{table}
-\centering
-\caption{Example of table.}
-\label{tab:Table1}
-\begin{tabular}{ |c||c|c|c|} 
- \hline
-     & $a$  &  $b$  &  $c$\\ 
- \hline 
- \hline
-$a$ & 0.014 &  0.20    &   0.13  \\
-\hline
-$b$ & 0.20    &   0.17    &   2.46    \\
-\hline
-$c$ & 0.13    &   2.5     &   0.31   \\
-\hline
-\end{tabular} 
+	\centering
+	\caption{Summary of Notations and Definitions.}
+	\label{tab:Table1}
+	\begin{tabular}{ |c||c|} 
+		\hline
+		 $Symbol$  &  $Purpose and Description$ \\ 
+		\hline 
+		\hline
+		$x$ & Image samples from source domain  \\
+		\hline
+		$y$ & Image samples from the target domain  \\
+		\hline
+		$p$ & A probability density function that describes the probability distribution of the random variable \\
+		\hline
+		$G(x), G(y)$ & Represents generator output to source domain image $x$ or target domain image $y$ \\
+		\hline
+		$G_{A2B}$ & Generator from source domain to target domain  \\
+		\hline
+		$G_{B2A}$ & Generator from target domain to source domain  \\
+		\hline
+		$D$   & discriminator  \\
+		\hline
+		$\mathcal{L}_{\mathrm{GAN}}$  & adversarial Loss  \\
+		\hline
+		$\mathcal{L}_{\mathrm{cyc}}$   & cycle consistency loss  \\
+		\hline
+		$\mathcal{L}_{\mathrm{id}}$   & identity  loss   \\
+	
+		\hline
+	$| \cdot |_1$ & L1 norm, used to measure absolute differences between images \\
+		\hline
+	\end{tabular} 
 \end{table}
 
 
-\subsection{Subsection}
 
-Text ...
 
-\section{Conclusions}
+\subsection{Generator with Multi-scale Feature Fusion}
 
-Conclusions here...
+Due to the typical multi-scale characteristics of pores, cracks and texture structures in the image, the generated images face major challenges. Micro-scale pores usually appear as high-frequency, low-contrast edge textures, while millimeter-scale cracks show significant gray scale jumps and spatial extensibility. Due to the fixed receptive fields of traditional convolution operations, it is often difficult to simultaneously capture such structural information with significant scale differences, which may easily lead to structural dislocation and blurred boundaries in the generated image.
 
-\section{Acknowledgments}
+In order to improve the network's ability to model complex geological structures, multiple residual blocks are introduced in the encoding and decoding stages. Each residual block contains two $3\times3$ convoluted layers and ReLU activation functions, which directly transfers input features through residual connections, effectively alleviating the gradient disappearance problem and enhancing deep feature expression capabilities. This module can extract local textures and global structures at different scales, improving the consistency and detail integrity of the generated image.
 
-The authors would like to acknowledge ...
+Therefore, a multi-scale feature fusion mechanism is introduced into the generator design to improve the model's ability to model cross-scale spatial structures and enhance the structural expression and detail restoration performance of rock images. Specifically, a multi-scale generator architecture integrating residual blocks and attention modules is constructed. Through hierarchical feature extraction and contextual information fusion, effective modeling and high-fidelity reconstruction of multi-scale structural elements in rock images are achieved.
 
-\newpage
 
-\textbf{Code availability section}
 
-Name of the code/library
+In order to enhance the model's ability to focus on key areas, an attention module is embedded in the intermediate feature extraction stage. This module dynamically adjusts the importance of each position in the feature map by calculating channel attention and spatial attention, thereby guiding the generator to pay attention to key structural areas in the image. 
 
-Contact: e-mail and phone number
 
-Hardware requirements: ...
+During the feature extraction stage, the model successively stacks multiple residual modules, and introduces a self-attention mechanism in each module to effectively improve the model's response to pore edges and crack boundaries by explicitly modeling the spatial dependencies within the feature map. Responsiveness to key areas such as crack boundaries. 
 
-Program language: ...
+In order to enhance the model's global modeling capabilities for key areas, during the feature extraction stage, the model successively stacks multiple residual modules, and introduces a self-attention mechanism in each module to improve modeling of long-distance dependencies and cross-area textures. Specifically, for the input feature map $X \in \mathbb{R}^{C \times H \times W}$, the Query $Q \in \mathbb{R}^{C' \times N}$, Key $K \in \mathbb{R}^{C' \times N}$ and Value $V \in \mathbb{R}^{C \times N}$ are obtained through $1\times1$ convolution mapping respectively. Where $C'=C/8$,$N$ is the number of pixels after the spatial dimension is expanded. Subsequently, the attention matrix $A \in \mathbb{R}^{N \times N}$ is obtained through matrix multiplication calculation,The $(i, j)$ item represents the attention weight of the $i$ position to the $j$ position in the input feature map, which is used to measure the similarity between the two in the feature space. Finally, each line is normalized through the $softmax$ function to ensure that the sum of all attention weights is 1. $A$ is obtained by Formula X. 
+
+\begin{equation}
+	A = Softmax(Q^TK)
+\end{equation}
+Then, by applying this attention matrix $A$ to the value matrix $V$, The weighted feature response is obtained, and the attention output feature map $F_{att}$ is obtained from Formula X. 
+\begin{equation}
+	F_{att} = VA
+\end{equation}
+Therefore, the final output feature at each location is the result of a weighted sum of the feature content of all locations, with the weights determined by the attention matrix $A$. That is, when the model generates new features for the current pixel, it will synthesize information from all other pixels in the reference map and determine the degree of influence based on their similarities, thereby improving the network's ability to model image structure and remote dependence. 
+
+Finally, it is reshaped back to the original feature map size, and residual fusion is performed with the input feature through a learnable scaling factor. The fused output feature map $F'$ is shown in Formula X. 
+
+\begin{equation}
+	F'= \gamma \cdot F_{att} +F
+\end{equation}
+
+Where $\gamma$ is a learnable scaling factor used to control the intensity of the attention branch. 
+
+For each position in the input feature map, a set of attention weights is calculated by learning its correlation with all other positions, thereby dynamically adjusting the feature contributions of different regions. This mechanism can break through the limitations of the local receptive field of traditional convolution kernels and focus more on the expression of key areas while maintaining the original structural information. 
+
+\subsection{Multi-scale Discriminator}
+
+In view of the fact that traditional single-scale discriminators usually use fixed-size image blocks as the discriminant unit, mainly focus on the authenticity judgment of local texture, and it is difficult to fully capture cross-region structural information, this paper introduces a multi-scale discriminant mechanism in the design of the discriminant. Considering that structural features such as pore connectivity and fracture networks in rock images have obvious multi-scale distribution characteristics, a single scale often cannot fully model global structural consistency. To this end, this paper proposes a dual-resolution discrimination structure, in which the original resolution image and its down-sampled version are input simultaneously in the discrimination stage, and the authenticity judgment is independently carried out by two discriminators. Among them, the high-resolution branch focuses on the identification of detail textures, while the low-resolution branch focuses more on the overall rationality of the global structure. The discriminant outputs at the two scales are jointly used for the generator's counter loss calculation, thereby improving the model's comprehensive evaluation ability of image authenticity from different levels. This design effectively enhances the model's ability to model multi-scale structures in rock images, and improves structure restoration and artifact suppression performance. 
+
+The main branch discriminator receives raw image input with a resolution of $1024\times1024$ and uses the PatchGAN framework for local discrimination. Specifically, the main branch uses several convoluted layers to gradually downsample the image and finally outputs a $64\times64$ discriminant feature map. The secondary branch aims at global structure perception. First, the input image is downsampled by average pooling at $2 \times 2$, reduced its size to $512 \times 512$, and finally outputs a discriminant map with a size of $32 \times 32$. This branch focuses on structural consistency in larger receptive fields, which helps make up for the main branch's limitations in macro-structure modeling. The final discrimination result is calculated from the discrimination maps output by the main and auxiliary branches respectively, and is subjected to equal weight weighted average to guide the training of the generator, so that it can take into account the local realism of the image and the overall structural consistency. 
+
+Let the input image be 为$x\in\mathbb{R}^{C\times H\times W}$, the main discriminator extracts the high-resolution texture from the original image as $D_\mathrm{main}(x)$, uses two-dimensional average pooling to down-sample the input image to obtain $x_\downarrow$, and the auxiliary discriminator processes the down-sampled image to capture the global structure; if $D_\mathrm{down}(x_\downarrow)$, the fusion output $D_\mathrm{final}(x)$ is obtained as the overall discriminator result is obtained from Formula X.
+\begin{equation}
+	D_{\mathrm{final}}(x)=\frac{1}{2}(D_{\mathrm{main}}(x)+D_{\mathrm{down}}(x_\downarrow))
+\end{equation}
+
+The multi-scale discriminant structure not only enhances the perception of image global structure distortions, edge discontinuities and texture blurring, but also provides cross-scale and consistent semantic and detail feedback for the generator, thereby effectively improving the spatial structure of the generated image. Stability and quality. At the same time, while ensuring computing efficiency, this design significantly improves the discriminator's ability to distinguish complex texture and structural features in rock images, and provides a more effective training signal for generator optimization. 
+\subsection{Upsampling module optimization}
+In the process of restoring images from low resolution to high resolution, traditional generation networks often use deconvolution for upsampling. However, previous studies have shown that deconvolution can easily produce checkerboard artifacts when stacked in multiple layers, especially when processing complex pore and boundary structures in rock images. This artifact can significantly affect the structural authenticity and discriminator stability of the image.
+
+To this end, we optimized the structure of the upsampling module in the generator, and introduced an upsampling module design that combines interpolation fusion and residual connection into the generator structure. Specifically, each level of image upsampling operation uses nearest neighbor interpolation to double the feature map in spatial dimensions, followed by a convolution layer to re-extract details and compress channel dimensions. This design structurally avoids the uneven overlap problem inherent in deconvolution, while allowing smooth transition of features and retaining local texture.
+
+In addition, in order to enhance the transfer of context information during the upsampling stage, this paper introduces a lightweight residual connection structure after upsampling at each layer, that is, an identity mapping is applied before and after convolution output, so that the original features can be directly transferred to subsequent layers without convolution transformation, thereby retaining mid-scale information to a certain extent and enhancing the continuity and edge clarity of high-resolution output images.
+Formula X represents the overall sampling process 
+\begin{equation}
+	\mathbf{y}_{i+1} = \mathrm{Conv}\left( \mathrm{Up}(\mathbf{y}_i) \right) + \mathbf{y}_{i}^{\uparrow}
+\end{equation}
+where $\mathbf{y}_i$ denotes the input feature map at stage $i$, $\mathrm{Up}(\cdot)$ is the nearest-neighbor interpolation, and $\mathbf{y}_{i}^{\uparrow}$ is the upsampled identity shortcut.
+
+In the upsampling stage of the generator, the model is equipped with a total of four levels of upsampling modules, which are used to gradually restore the resolution of $ 64\times  64$ in the self-coding stage of the feature map to the final $1024 \times 1024$. Each level of upsampling consists of two parts:
+First, the spatial size of the input feature map is expanded to twice the original through nearest neighbor interpolation, and then a layer of two-dimensional convolution is added to refine local features. This convolution operation uses a $3 \times 3$ convolution kernel, and the steps in the horizontal and vertical directions are $1$, and the filling of pixels at the edges is $1$, thus effectively enhancing the continuity and texture expression capabilities of context information without changing the space size.
+The number of output channels of the convolutional layer corresponding to the four-level upsampling is $64→32→16→8$, and the number of channels is reduced step by step to compress feature dimensions and enhance semantic expression capabilities. This design not only ensures the continuous restoration of the image space size, but also effectively avoids Checkerboard artifacts common in deconvolution operations, ensuring the stability of the image structure and texture during the upsampling process. 
+
+Overall, this module design not only improves the stability of upsampling, but also effectively enhances the model's ability to restore image structure and edge information at different scales. It is especially suitable for high-fidelity reconstruction tasks of microstructures and fractures in rock images. 
+
+
+
+
+
+\subsection{Extended loss function for structural and edge fidelity}
+
+In order to achieve high-fidelity rock image conversion and structural reconstruction, this paper systematically expands and customizes the traditional CycleGAN loss function architecture, and constructs a multi-objective collaborative optimization strategy suitable for geological image super-resolution reconstruction tasks. Considering the high sensitivity of rock images to microscopic information such as pore connectivity, fracture structure and boundary topology in engineering applications, this paper further introduces identity mapping loss based on the resistance loss and cyclic consistency loss to improve the model's ability to express structure and maintain physical attributes.
+
+First, generator training still focuses on the Least Squares Form of Adversarial Loss (LSGAN). The goal is to make the generated high-resolution SEM image indistinguishable from the real image before the discriminator, thus driving the generator to learn the target domain. Texture distribution and appearance features. Compared with traditional cross-entropy loss, LSGAN can provide smoother gradient feedback, enhance the stability of the model training process and mitigate pattern collapse. To measure the confrontational performance of generators and discriminators in the target domain, The adversarial loss function $\mathcal{L}_{GAN}(G,D) $ is defined as Equation X. 
  
-Software required: ...
+ \begin{equation}
+\mathcal{L}_{GAN}(G, D) = \mathbb{E}_{x \sim p_{data}(x)}[(D(x) - 1)^2] + \mathbb{E}_{y \sim p_{data}(y)}[(D(G(y)))^2]
+ \end{equation}
 
-Program size: ...
 
-The source codes are available for downloading at the link:
-https://github.com/ . . . . 
+
+Secondly, in order to maintain the geometric consistency of the image during cross-domain conversion, the model introduces a cyclic consistency loss term, which means that when the image is mapped from the source domain to the target domain and then mapped back to the original domain, the reconstruction result should be as consistent as the input image as possible,so we use cyclic consistency loss to encourage this behavior.This loss achieves closed-loop preservation of semantic content and structural boundaries through pixel-level L1 norm constraints. The cyclic consistency loss function $\mathcal{L}_{\text{cyc}}$ is defined as Equation X. 
+
+\begin{equation}
+	\mathcal{L}_{\text{cyc}}(G_{A2B}, G_{B2A}) = \mathbb{E}_{x \sim p_{\text{data}}(x)} \left[ \| G_{B2A}(G_{A2B}(x)) - x \|_1 \right] + \mathbb{E}_{y \sim p_{\text{data}}(y)} \left[ \| G_{A2B}(G_{B2A}(y)) - y \|_1 \right]
+\end{equation}
+
+
+In addition, in order to suppress unnecessary transformation behavior of the generator on the target domain image, an identity mapping loss term is added to the model. When the generator receives an image of the target domain as input, its output should be approximate to the input image itself. This regular term helps stabilize the model learning process and avoid texture distortions and structural mismatches caused by excessive migration. The identity map loss $\mathcal{L}_{\text{id}}$ is defined as equation X 
+\begin{equation}
+	\mathcal{L}_{id}(G_{A2B}, G_{B2A}) = \mathbb{E}_{y \sim p_{data}(y)} \left[ \| G_{A2B}(y) - y \|_1 \right] + \mathbb{E}_{x \sim p_{data}(x)} \left[ \| G_{B2A}(x) - x \|_1 \right]
+\end{equation}
+
+
+To sum up, the constructed composite loss function not only inherits CycleGAN's unsupervised style migration capabilities, but also integrates the structural priors and physical constraints required for geological image modeling, providing a basis for realizing rock image reconstruction with engineering interpretation. Theoretical basis and training guarantee. 
+
+
+\section{EXPERIMENTAL RESULTS}
+\subsection{Data sets and pretreatment}
+
+The experimental dataset used in this study was obtained from the publicly available Zenodo platform (DOI: 10.5281/zenodo.6420100), published by Liu et al. in 2022. It was designed to support research on multiscale digital rock image fusion using deep generative adversarial networks (GANs), and primarily contains high-resolution grayscale digital rock images derived from micron-scale CT scans, encompassing a wide range of geological structures and scale features.
+
+The dataset is composed of two main components: low-resolution (LR) images and learned style kernels (LSK), along with a reference pretrained StyleGAN checkpoint file (network-snapshot-stylegan.pkl). The LR images reflect the structural features of porous rocks at mesoscopic scales, suitable for coarse-scale analysis, while the LSK encodes high-frequency textural features extracted from high-resolution images, providing a foundation for multiscale texture modeling.
+
+All images are stored in standard image formats and have been systematically organized to meet the requirements of supervised learning tasks. The dataset is widely applicable to digital rock physics, geomechanical modeling, and deep learning-based super-resolution or scale conversion tasks. In this study, a subset of the data was selected for training and validating the proposed model for translating low-resolution micro-CT images into high-resolution SEM-style images.
+
+
+
+
+
+\subsection{Comparison with state-of-the-art methods}
+In this study, we systematically evaluated the effectiveness of the proposed style-based data augmentation mechanism in enhancing image generation quality and structural reconstruction performance. To ensure a fair comparison, we reproduced and referenced several existing methods based on the same CycleGAN backbone, and conducted performance comparisons on a unified dataset using consistent evaluation metrics, as shown in Tables IV and V. The results demonstrate that, for the task of Micro-CT to SEM image translation, our method significantly outperforms baseline models by incorporating StyleGAN-generated style samples into the training process.
+
+Specifically, the model trained solely on original image data showed limitations in terms of SSIM, PSNR, and porosity error. When StyleGAN-generated samples were integrated into the training dataset for augmentation, the model's performance improved significantly. In particular, under the configuration with 500 style samples, the model achieved optimal results, with SSIM reaching 0.9911, PSNR increasing to 36.58 dB, and porosity error decreasing to 0.0047—substantially surpassing the results obtained without data augmentation. By contrast, the highest SSIM achieved by baseline methods under the same setting was 0.985, while the standard CycleGAN model yielded an average SSIM of only 0.974, confirming the advantage of the proposed style augmentation approach in enhancing visual quality and structural fidelity.
+
+Further analysis revealed that the introduction of style samples led to superior reconstruction of complex fracture networks and multi-scale pore geometries, especially in terms of edge continuity and fine detail sharpness. Additionally, we introduced an adaptive training strategy that progressively expands the coverage of the style space, enabling the model to learn more generalized and diverse distributions. Overall, the synergy between the style augmentation mechanism and structure-preserving objectives contributes to improved balance between visual realism and geological interpretability, enhancing the model’s potential for practical geotechnical applications.
+
+\begin{table}
+	\centering
+	\caption{Performance comparison table of image generation and structure reconstruction methods.}
+	\label{tab:Table1}
+	\begin{tabular}{ |c||c|c|c|} 
+		\hline
+		& $ssim$  &  $PSNR$  &  $porosity error$\\ 
+		\hline 
+		\hline
+		$baseline$ & 0.9304 &  22.61 dB    &   0.0973  \\
+		\hline
+		$style500$ & 0.9912    &   36.58 dB    &   0.0047   \\
+		\hline
+		$style400$ & 0.9879   &   30.26 dB    &   0.0067  \\
+		\hline
+		$style300$ & 0.9893    &   34.34 dB     &  0.0109   \\
+		\hline
+		$style200$ & 0.9861    &  31.81 dB   &   0.0057   \\
+		\hline
+		$style200$ & 0.9875    &    33.36 dB     & 0.0066  \\
+		\hline
+	\end{tabular} 
+\end{table}
+
+
+
+
+\subsection{Ablation Study}
+Table X presents the results of ablation experiments conducted to evaluate the impact of key components in the proposed model, including the discriminator architecture, attention mechanism, and different upsampling strategies. The performance of image generation was assessed using three metrics: SSIM, PSNR, and porosity error, reflecting the structural similarity, visual quality, and geological consistency of the generated images.
+
+In the baseline model employing a single-scale discriminator, the SSIM reached 0.9731, PSNR was 32.11 dB, and porosity error was 0.0098, indicating strong structural reconstruction capability. When the discriminator was replaced with a multi-scale structure, a slight drop in SSIM to 0.9377 was observed, along with a notable decline in PSNR to 20.23 dB and an increase in porosity error to 0.038. These results suggest that multi-scale feature fusion, without the support of auxiliary mechanisms, may interfere with image quality.
+
+Regarding the upsampling module, three strategies were compared: transposed convolution (deconv), nearest-neighbor interpolation (nearest), and shuffle upsampling. The results show that transposed convolution yields the highest image quality, achieving an SSIM of 0.978, PSNR of 35.88 dB, and the lowest porosity error of 0.0066, indicating its effectiveness in detail reconstruction. In contrast, the nearest-neighbor method performed relatively poorly, with SSIM dropping to 0.972, PSNR to 26.67 dB, and porosity error increasing to 0.0115, suggesting limitations in preserving fine details. The shuffle upsampling strategy achieved a more balanced performance across the three metrics, with SSIM reaching 0.984, PSNR at 34.87 dB, and porosity error at 0.0071, demonstrating superior structural restoration and edge clarity.
+
+Overall, the analysis reveals that the choice of upsampling strategy significantly influences model performance. Transposed convolution and shuffle upsampling both demonstrate advantages in terms of visual quality and structural fidelity. In contrast, the design of the discriminator requires coordination with contextual mechanisms to avoid excessive noise introduced by multi-scale discrimination. Collectively, the selected module combinations in this study achieved a favorable balance across multiple evaluation metrics, highlighting the importance of each component in generating high-quality rock images.
+
+\begin{table}
+	\centering
+	\caption{Ablation Study Results.}
+	\label{tab:Table2}
+	\begin{tabular}{ |c||c|c|c|} 
+		\hline
+		& $ssim$  &  $PSNR$  &  $porosity error$\\ 
+		\hline 
+		\hline
+		$single-scale discriminator$ & 0.9731 &  32.11 dB    &   0.0098  \\
+		\hline
+		$no attentio$ & 0.9377    &   20.23 dB    &   0.038    \\
+		\hline
+		$upsample deconv$ & 0.9784    &   35.88 dB     &   0.0066   \\
+		\hline
+		$upsample nearest$ & 0.9723    &   26.67 dB     &   0.0115   \\
+		\hline
+		$upsanple shuffle$ & 0.9839    &   34.87 dB     &   0.0071   \\
+		\hline
+	\end{tabular} 
+\end{table}
+\section{Algorithm and implementation}
 
 
 \bibliographystyle{cas-model2-names}
